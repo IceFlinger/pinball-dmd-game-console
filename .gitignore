@@ -5,3 +5,5 @@
 .vscode/targets.log
 .vscode/settings.json
 build
+hardware/fp-info-cache
+hardware/stern_dmd_driver-backups
