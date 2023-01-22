@@ -2,19 +2,25 @@
 #include "util.h"
 
 int rowscan = 0;
-uint32_t framecount = 0;
 
 uint8_t screen[SCREEN_HEIGHT][SCREEN_WIDTH];
+int8_t errs[SCREEN_HEIGHT][SCREEN_WIDTH];
 
-static inline uint8_t handle_pixel(uint8_t color) {
-    return gldp[(color/(256/GLDP_COUNT)) * GLDP_LENGTH + framecount];
+static inline uint8_t handle_pixel(uint8_t y, uint8_t x) {
+    int err = errs[y][x];
+    int c = (int)screen[y][x] + err;
+    int output = (c > 7) ? 15 : 0;
+    err = c - output;
+    errs[y][x] = err;
+    return !!output;
 }
 
 void clock_columns(){
   gpio_put(C_OE, 0);
   gpio_put(C_LE, 0);
   for (int x = SCREEN_WIDTH;x > 0;x--) {
-    gpio_put(C_DAT, handle_pixel(screen[rowscan-1][x-1]));
+    int pix =  handle_pixel(rowscan-1, x-1);
+    gpio_put(C_DAT, pix);
     pulse(C_CLK, 3);
   }
   gpio_put(C_LE, 1);
@@ -22,7 +28,6 @@ void clock_columns(){
 }
 
 bool draw(struct repeating_timer *t) {
-  //Drawing
   if (rowscan == 0){
     gpio_put(R_DAT, 1);
   }
@@ -32,10 +37,6 @@ bool draw(struct repeating_timer *t) {
   rowscan++;
   if (rowscan>32) {
     rowscan = 0;
-    framecount++;
-    if (framecount == GLDP_LENGTH) {
-      framecount = 0;
-    }
   }
   return true;
 }

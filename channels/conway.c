@@ -7,7 +7,6 @@
 #include "hardware/adc.h"
 #include <string.h>
 
-
 #define ROWS 32
 #define COLUMNS 128/8
 #define GRID_HEIGHT 32
@@ -90,7 +89,6 @@ uint8_t mod(uint8_t a, uint8_t b)
 void conway_init(uint8_t (*screen)[SCREEN_WIDTH]){
 	adc_init();
   step = true;
-	//adc_gpio_init(27);
 	adc_select_input(4);
 	for (int i = 0; i < ROWS; i++){
 		for (int j = 0; j < COLUMNS; j++) {
@@ -106,13 +104,13 @@ void conway_draw(uint8_t (*screen)[SCREEN_WIDTH]){
 }
 
 void conway_step(uint8_t p1_input, uint8_t p2_input, uint8_t (*screen)[SCREEN_WIDTH]){
-  if (!pressed_a(p1_input) && step){
-    //step = false;
+  if (!pressed_a(p1_input)){
+    step = false;
     bool fdisp[GRID_HEIGHT][GRID_WIDTH*8];
     for (uint8_t y = 0; y < GRID_HEIGHT; y++) {
       for (uint8_t x = 0; x < GRID_WIDTH; x++) {
       uint8_t neighbors[8] = {0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000};
-      //Serial.println(F("Retriving neighbors..."));
+      //Retriving neighbors...
       neighbors[0] = grid[mod(y-1,GRID_HEIGHT)][mod(x-1,GRID_WIDTH)];
       neighbors[1] = grid[mod(y-1,GRID_HEIGHT)][mod(x,GRID_WIDTH)];
       neighbors[2] = grid[mod(y-1,GRID_HEIGHT)][mod(x+1,GRID_WIDTH)];
@@ -138,14 +136,11 @@ void conway_step(uint8_t p1_input, uint8_t p2_input, uint8_t (*screen)[SCREEN_WI
         for (uint8_t p = 0; p < 8; p++) {
           if (fdisp[y][(x*8)+p]) {
             newbl = newbl + (0b10000000 >> p);
-            screen[y][(x*8)+p] = C5;
+            screen[y][(x*8)+p] = C15;
           }
         }
         grid[y][x] = newbl;
       }
     }
-  }
-  if (!pressed_a(p1_input)){
-    step = true;
   }
 }

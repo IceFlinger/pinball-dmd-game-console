@@ -16,10 +16,17 @@ void game_example_init(uint8_t (*screen)[SCREEN_WIDTH]){
 };
 
 void game_example_draw(uint8_t (*screen)[SCREEN_WIDTH]){
-  clear_screen(screen);
+  //clear_screen(screen);
+  for (int i = 0; i < SCREEN_HEIGHT; i++){
+      for (int j = 0; j < SCREEN_WIDTH; j++) {
+        if (screen[i][j] > 0){
+          screen[i][j]--;
+        }
+      }
+  }
   for (int i = test_y; i < test_y + test_size; i++){
       for (int j = test_x; j < test_x + test_size; j++) {
-        screen[i][j] = C5;
+        screen[i][j] = C15;
       }
   }
 };

@@ -23,16 +23,23 @@
 #define SCREEN_WIDTH 128 // Matrix display width, in pixels
 #define SCREEN_HEIGHT 32 // Matrix display height, in pixels
 
-#define REFRESH_HZ 256
-
-#define COLOR_FULL 250
+#define COLOR_FULL 15
 #define COLOR_OFF 0
-#define C5 250
-#define C4 172
-#define C3 130
-#define C2 86
-#define C1 44
+#define C15 15
+#define C14 14
+#define C13 13
+#define C12 12
+#define C11 11
+#define C10 10
+#define C9 9
+#define C8 8
+#define C7 7
+#define C6 6
+#define C5 5
+#define C4 4
+#define C3 3
+#define C2 2
+#define C1 1
 #define C0 0
-
 
 #endif

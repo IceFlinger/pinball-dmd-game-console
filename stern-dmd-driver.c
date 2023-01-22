@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
 #include <string.h>
@@ -59,7 +60,7 @@ int get_selection() {
 }
 
 void select_mode(int selection) {
-  printf("%d\r\n", selection);
+  printf("Channel: %d\r\n", selection);
   mode_switched = false;
   switch(selection) {
     case 0:
@@ -115,6 +116,21 @@ void select_mode(int selection) {
 
 void selector_callback(uint gpio, uint32_t events) {
   mode_switched = true;
+}
+
+void selector_init(){
+    multicore_fifo_push_blocking(0xc001);
+ 
+    uint32_t g = multicore_fifo_pop_blocking();
+ 
+    if (g != 0xc001)
+        printf("Logic Core 1 Problem\r\n");
+    else
+        printf("Logic Core 1 Ready\r\n");
+ 
+    while(1){
+      select_mode(get_selection());
+    }
 }
 
 int main()
@@ -192,10 +208,21 @@ int main()
   init_blank();
   clear_screen(screen);
   printf("Starting...\r\n");
-  long lineInterval = (pow(REFRESH_HZ, -1)*1000000/SCREEN_HEIGHT);
-  add_repeating_timer_us(-lineInterval, draw, NULL, &timer);
+  multicore_launch_core1(selector_init);
+
+  // Wait for it to start up
+
+  uint32_t g = multicore_fifo_pop_blocking();
+
+  if (g != 0xc001)
+      printf("Scanline Core 0 Problem\r\n");
+  else {
+      multicore_fifo_push_blocking(0xc001);
+      printf("Scanline Core 0 Ready\r\n");
+  }
+  add_repeating_timer_us(-90, draw, NULL, &timer);
   while(1){
-    select_mode(get_selection());
+    busy_wait_us(1);
   }
 
   return 0;
